@@ -8,9 +8,9 @@
 #include<arpa/inet.h>
 #include<sys/socket.h>
  
-#define SERVER "127.0.0.1"
+#define RECEIVER "127.0.0.1"
 #define BUFLEN 512  //Max length of buffer
-#define PORT 9999   //The port on which to send data
+#define PORT 8888   //The port on which to send data
  
 void die(char *s)
 {
@@ -25,6 +25,7 @@ int main(void)
     char buf[BUFLEN];
     char message[BUFLEN];
  
+    //Create Socket
     if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
         die("socket");
@@ -34,7 +35,7 @@ int main(void)
     si_other.sin_family = AF_INET;
     si_other.sin_port = htons(PORT);
      
-    if (inet_aton(SERVER , &si_other.sin_addr) == 0) 
+    if (inet_aton(RECEIVER , &si_other.sin_addr) == 0)
     {
         fprintf(stderr, "inet_aton() failed\n");
         exit(1);
@@ -55,12 +56,12 @@ int main(void)
         //clear the buffer by filling null, it might have previously received data
         memset(buf,'\0', BUFLEN);
         //try to receive some data, this is a blocking call
-        if (recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen) == -1)
-        {
-            die("recvfrom()");
-        }
-         
-        puts(buf);
+//        if (recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen) == -1)
+//        {
+//            die("recvfrom()");
+//        }
+//         
+//        puts(buf);
     }
  
     close(s);

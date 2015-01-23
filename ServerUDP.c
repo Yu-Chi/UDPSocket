@@ -9,7 +9,7 @@
 #include<sys/socket.h>
  
 #define BUFLEN 512  //Max length of buffer
-#define PORT 8888   //The port on which to listen for incoming data
+#define PORT 9999   //The port on which to listen for incoming data
  
 void die(char *s)
 {
@@ -60,10 +60,10 @@ int main(void)
         printf("Data: %s\n" , buf);
          
         //now reply the client with the same data
-        if (sendto(s, buf, recv_len, 0, (struct sockaddr*) &si_other, slen) == -1)
-        {
-            die("sendto()");
-        }
+//        if (sendto(s, buf, recv_len, 0, (struct sockaddr*) &si_other, slen) == -1)
+//        {
+//            die("sendto()");
+//        }
     }
  
     close(s);
