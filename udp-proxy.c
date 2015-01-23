@@ -39,6 +39,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#define SERVER "127.0.0.1"
+#define BUFLEN 512  //Max length of buffer
+#define PORT 8888   //The port on which to send data
+
 int bindsocket( char* ip, int port );
 int main( int argc, char* argv[] );
 
@@ -68,56 +72,89 @@ int main( int argc, char* argv[] ) {
 
     //printf("argc: %d\n",argc);
     
-	if( 3 != argc && 5 != argc && 6 != argc ) {
-		fprintf( stderr, "Usage: %s <listen-ip> <listen-port> [[source-ip] <destination-ip> <destination-port>]\n", argv[ 0 ] );
-		exit( 1 );
-	}
+	// if( 3 != argc && 5 != argc && 6 != argc ) {
+// 		fprintf( stderr, "Usage: %s <listen-ip> <listen-port> [[source-ip] <destination-ip> <destination-port>]\n", argv[ 0 ] );
+// 		exit( 1 );
+// 	}
 
-	i = 1;
-	inip = argv[ i++ ];		/* 1 */
-	inpt = argv[ i++ ];		/* 2 */
-	if( 6 == argc )
-		srcip = argv[ i++ ];	/* 3 */
-	if( 3 != argc ) {
-		dstip = argv[ i++ ];	/* 3 or 4 */
-		dstpt = argv[ i++ ];	/* 4 or 5 */
-	}
-	
-	listen = bindsocket( inip, atoi( inpt ) );
-	if( 6 == argc ) {
-		output = bindsocket( srcip, atoi( inpt ) );
-	} else {
-		output = listen;
-	}
+	// i = 1;
+// 	inip = argv[ i++ ];		/* 1 */
+// 	inpt = argv[ i++ ];		/* 2 */
+// 	if( 6 == argc )
+// 		srcip = argv[ i++ ];	/* 3 */
+// 	if( 3 != argc ) {
+// 		dstip = argv[ i++ ];	/* 3 or 4 */
+// 		dstpt = argv[ i++ ];	/* 4 or 5 */
+// 	}
+// 	
+// 	listen = bindsocket( inip, atoi( inpt ) );
+// 	if( 6 == argc ) {
+// 		output = bindsocket( srcip, atoi( inpt ) );
+// 	} else {
+// 		output = listen;
+// 	}
+// 
+// 	if( 3 != argc ) {
+// 		dst.sin_family = AF_INET;
+// 		dst.sin_addr.s_addr = inet_addr( dstip );
+// 		dst.sin_port = htons( atoi( dstpt ) );
+// 	}
+// 	ret.sin_addr.s_addr = 0;
 
-	if( 3 != argc ) {
-		dst.sin_family = AF_INET;
-		dst.sin_addr.s_addr = inet_addr( dstip );
-		dst.sin_port = htons( atoi( dstpt ) );
-	}
-	ret.sin_addr.s_addr = 0;
+    struct sockaddr_in si_other;
+    int s, i, slen=sizeof(si_other);
+    char buf[BUFLEN];
+    char message[BUFLEN];
+ 
+    if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    {
+        die("socket");
+    }
+ 
+    memset((char *) &si_other, 0, sizeof(si_other));
+    si_other.sin_family = AF_INET;
+    si_other.sin_port = htons(PORT);
+     
+
+     if (inet_aton(SERVER , &si_other.sin_addr) == 0) 
+    {
+        fprintf(stderr, "inet_aton() failed\n");
+        exit(1);
+    }
 
 	while( 1 ) {
-		char buffer[65535];
-		unsigned int size = sizeof( src );
-		int length = recvfrom( listen, buffer, sizeof( buffer ), 0, (struct sockaddr*)&src, &size );
-		if( length <= 0 )
-			continue;
+	
+	    printf("Enter message : ");
+        gets(message);
+	
+	 //send the message
+        if (sendto(s, message, strlen(message) , 0 , (struct sockaddr *) &si_other, slen)==-1)
+        {
+            die("sendto()");
+        }
+		// char buffer[65535];
+// 		unsigned int size = sizeof( src );
+// 		int length = recvfrom( listen, buffer, sizeof( buffer ), 0, (struct sockaddr*)&src, &size );
+// 		if( length <= 0 )
+// 			continue;
 
-		if( 3 == argc ) {
-			/* echo, without tracking return packets */
-			sendto( listen, buffer, length, 0, (struct sockaddr*)&src, size );
-			printf("Data: %s\n",buffer);
-		} else if( ( src.sin_addr.s_addr == dst.sin_addr.s_addr ) && ( src.sin_port == dst.sin_port ) ) {
-			/* If we receive a return packet back from our destination ... */
-			if( ret.sin_addr.s_addr )
-				/* ... and we've previously remembered having sent packets to this location,
-				   then return them to the original sender */
-				sendto( output, buffer, length, 0, (struct sockaddr*)&ret, sizeof( ret ) );
-		} else {
-			sendto( output, buffer, length, 0, (struct sockaddr*)&dst, sizeof( dst ) );
-			/* Remeber original sender to direct return packets towards */
-			ret = src;
-		}
+   
+
+
+		// if( 3 == argc ) {
+// 			/* echo, without tracking return packets */
+// 			sendto( listen, buffer, length, 0, (struct sockaddr*)&src, size );
+// 			printf("Data: %s\n",buffer);
+// 		} else if( ( src.sin_addr.s_addr == dst.sin_addr.s_addr ) && ( src.sin_port == dst.sin_port ) ) {
+// 			/* If we receive a return packet back from our destination ... */
+// 			if( ret.sin_addr.s_addr )
+// 				/* ... and we've previously remembered having sent packets to this location,
+// 				   then return them to the original sender */
+// 				sendto( output, buffer, length, 0, (struct sockaddr*)&ret, sizeof( ret ) );
+// 		} else {
+// 			sendto( output, buffer, length, 0, (struct sockaddr*)&dst, sizeof( dst ) );
+// 			/* Remeber original sender to direct return packets towards */
+// 			ret = src;
+// 		}
 	}
 }
