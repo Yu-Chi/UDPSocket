@@ -74,8 +74,7 @@ int main(void)
     while(1)
     {
         //Receiver
-        //        printf("Waiting for data...");
-        //        fflush(stdout);
+        fflush(stdout);
         
         //try to receive some data, this is a blocking call
         if ((recv_len = recvfrom(s, buf1, BUFLEN, 0, (struct sockaddr *) &si_other1, &slen1)) == -1)
@@ -86,20 +85,10 @@ int main(void)
         //        //print details of the client/peer and the data received
         printf("Received packet from %s:%d\n", inet_ntoa(si_other1.sin_addr), ntohs(si_other.sin_port));
         printf("Data: %s\n" , buf1);
-        //
-        //now reply the client with the same data
-        //        if (sendto(s, buf, BUFLEN, 0, (struct sockaddr*) &si_other1, slen1) == -1)
-        //        {
-        //            die("sendto()");
-        //        }
-
-        
         
         
         //Sender
-        
-//        printf("Enter message : ");
-//        gets(message);
+
         
         //send the message
         if (sendto(skt, buf1, BUFLEN , 0 , (struct sockaddr *) &si_other, slen)==-1)
@@ -107,21 +96,9 @@ int main(void)
             die("sendto()");
         }
         
-        //receive a reply and print it
-        //clear the buffer by filling null, it might have previously received data
-//        memset(buf,'\0', BUFLEN);
-//        //try to receive some data, this is a blocking call
-//        if (recv_len =recvfrom(skt, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen) == -1)
-//        {
-//            die("recvfrom()");
-//        }
-//         
-//        puts(buf);
-        
-        
-       
     }
  
-    close(s);
+    closesocket(s);
+    closesocket(skt);
     return 0;
 }

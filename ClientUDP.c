@@ -21,12 +21,12 @@ void die(char *s)
 int main(void)
 {
     struct sockaddr_in si_other;
-    int s, i, slen=sizeof(si_other);
+    int handler, i, slen=sizeof(si_other);
     char buf[BUFLEN];
     char message[BUFLEN];
  
     //Create Socket
-    if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    if ( (handler=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
         die("socket");
     }
@@ -47,7 +47,7 @@ int main(void)
         gets(message);
          
         //send the message
-        if (sendto(s, message, strlen(message) , 0 , (struct sockaddr *) &si_other, slen)==-1)
+        if (sendto(handler, message, strlen(message) , 0 , (struct sockaddr *) &si_other, slen)==-1)
         {
             die("sendto()");
         }
@@ -55,15 +55,9 @@ int main(void)
         //receive a reply and print it
         //clear the buffer by filling null, it might have previously received data
         memset(buf,'\0', BUFLEN);
-        //try to receive some data, this is a blocking call
-//        if (recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &slen) == -1)
-//        {
-//            die("recvfrom()");
-//        }
-//         
-//        puts(buf);
+        
     }
  
-    close(s);
+    closesocket(handler);
     return 0;
 }

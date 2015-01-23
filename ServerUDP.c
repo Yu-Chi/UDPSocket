@@ -66,6 +66,6 @@ int main(void)
 //        }
     }
  
-    close(s);
+    closesocket(s);
     return 0;
 }
