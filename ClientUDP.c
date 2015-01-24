@@ -100,7 +100,7 @@ struct pseudo_header psh;
     
  
     //Create Socket
-    if ( (handler=socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) == -1)
+    if ( (handler=socket (AF_INET, SOCK_RAW, IPPROTO_RAW)) == -1)
     {
         printf("%s\n","Unsuccessful!");
         die("socket");
